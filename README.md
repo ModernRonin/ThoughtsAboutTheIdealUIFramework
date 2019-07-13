@@ -49,6 +49,7 @@ declared in the UI and invoked from the UI only
     * enable debug output that writes to console what is happening in terms of declaration calls
 * UX can define client-side routes, pages without DEV support
 * out-of-the-box commands for calling APIs, for OAuth authentication, for passing OAuth tokens with API calls
+* ability to wrap existing UI components from 3rd-party for use by UX
 
     
 ## Examples
@@ -58,6 +59,7 @@ declared in the UI and invoked from the UI only
 * tag auto-completion server-side
 * split one view/page into multiple 
 * login/logout flow with protected views/pages
+* ?how to wrap existing datetimepicker?
 
 
 # License
