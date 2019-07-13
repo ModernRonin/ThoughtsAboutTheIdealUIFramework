@@ -21,15 +21,20 @@
         <model-property name="Text" type="string">/>
         <model-property name="IsCompleted" type="boolean"/>
         <model-property name="Id" type="none"/>
+        <model-call name="Complete"/>
+        <model-call name="Delete"/>
+        <model-call name="Update">
+            <model-parameter name="taskText" type="string"/>
+        </model-call>
         <ui-property name="IsEditing" type="boolean"/>
         <ui-property name="EditedText" type="string"/>
+        <ui-style name="ListStyle">
+            <ui-rule if=".IsEditing" add-value="editing"/>
+            <ui-rule if=".IsCompleted" add-value="completed"/>
+        </ui-style>
     </model-type>
     
     <model-output name="Tasks" type="Task list" />
-
-    <model-command name="Complete">
-        <model-parameter name="taskId" type="none"/>
-    </model-command>
 
     <model-command name="DeleteCompleted"/>
 
@@ -41,31 +46,15 @@
         <model-parameter name="taskText" type="string"/>
     </model-command>
 
-    <model-command name="DeleteTask">
-        <model-parameter name="taskId" type="none"/>
-    </model-command>
-
-    <model-command name="UpdateTask">
-        <model-parameter name="taskId" type="none"/>
-        <model-parameter name="taskText" type="string"/>
-    </model-command>
-
-    <ui-lookup name="StyleForTask">
-        <ui-parameter name="task" type="Task"/>
-        <ui-map if="$task.IsEditing" add-value="editing"/>
-        <ui-map if="$task.IsCompleted" add-value="completed"/>
-    </ui-lookup>
-
     <ui-variable name="filter" value="none"/>
 
     <ui-filter name="AllTasks">
         <ui-parameter name="task" type="Task"/>
-        
     </ui-filter>
 
     <ui-filter name="ActiveTasks">
         <ui-parameter name="task" type="Task"/>
-        <ui-let-through if="not $task.IsCompleted"/>
+        <ui-let-through if-not="$task.IsCompleted"/>
     </ui-filter>
 
     <ui-filter name="CompletedTasks">
@@ -113,9 +102,7 @@
 
     <ui-behaviors for="SingleCompletionToggle">
         <on-change>
-            <ui-call command="Complete">
-                <ui-argument name="taskId" value="$current.Id"/>
-            </ui-call>
+            <ui-call command="$current.Complete"/>
         </on-change>
     </ui-behaviors>
 
@@ -131,8 +118,7 @@
         <do-use if="$current.IsEditing"/>
         <on-blur>
             <ui-set what="$current.IsEditing" to="false"/>
-            <ui-call command="UpdateTask">
-                <ui-argument name="taskId" value="$current.Id"/>
+            <ui-call command="$current.Update">
                 <ui-argument name="taskText" value="$current.EditedText"/>
             </ui-call>
         </on-blur>
@@ -144,9 +130,7 @@
 
     <ui-behaviors for="Delete">
         <on-click>
-            <ui-call command="DeleteTask">
-                <ui-argument name="taskId" value="$current.Id"/>
-            </ui-call>
+            <ui-call command="$current.Delete"/>
         </on-click>
     </ui-behaviors>
 
@@ -166,7 +150,7 @@
             <label for="AllCompletionToggle">Mark all as complete</label>
             <ul class="todo-list" from-model="Tasks | $filter" element-ref="current">
                 <ui-template>
-                    <li dynamic-class="lookup StyleForTask $current">
+                    <li ui-class="$current.ListStyle">
                         <div class="view">
                             <input Id="SingleCompletionToggle" class="toggle" type="checkbox" from-model="$current.IsCompleted"/>
                             <label id="TextDisplay" from-model="$current.Text"></label>
