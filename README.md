@@ -62,6 +62,8 @@ declared in the UI and invoked from the UI only
 * login/logout flow with protected views/pages
 * ?how to wrap existing datetimepicker?
 
+## Notes
+* `type`declaration for model-properties, if denoting primitives like `string` or `boolean`, mean the UI-relevant type; ie, an `id` property may be a long or a Guid or whatever in code, but in the UI can have the type `none`, meaning it's not going to be displayed at all, or it could have `string` meaning it will be displayed as text etc.
 
 # License
 Use of the contents of this repository is governed by the [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International Public License](License.txt).
