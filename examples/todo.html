@@ -17,40 +17,38 @@
     </style>
 </head>
 <body>
-    <ui-model>
-        <model-type name= "Task">
-            <model-property name="Text" type="string">/>
-            <model-property name="IsCompleted" type="boolean"/>
-            <model-property name="Id" type="none"/>
-            <ui-property name="IsEditing" type="boolean"/>
-            <ui-property name="EditedText" type="string"/>
-        </model-type>
-        
-        <model-output name="Tasks" type="Task list" />
+    <model-type name= "Task">
+        <model-property name="Text" type="string">/>
+        <model-property name="IsCompleted" type="boolean"/>
+        <model-property name="Id" type="none"/>
+        <ui-property name="IsEditing" type="boolean"/>
+        <ui-property name="EditedText" type="string"/>
+    </model-type>
+    
+    <model-output name="Tasks" type="Task list" />
 
-        <model-command name="Complete">
-            <model-parameter name="task" type="Task"/>
-        </model-command>
+    <model-command name="Complete">
+        <model-parameter name="task" type="Task"/>
+    </model-command>
 
-        <model-command name="DeleteCompleted"/>
+    <model-command name="DeleteCompleted"/>
 
-        <model-command name="SetAll">
-            <model-paramer name="asCompleted" type="boolean"/>
-        </model-command>
+    <model-command name="SetAll">
+        <model-paramer name="asCompleted" type="boolean"/>
+    </model-command>
 
-        <model-command name="AddTask">
-            <model-parameter name="taskText" type="string"/>
-        </model-command>
+    <model-command name="AddTask">
+        <model-parameter name="taskText" type="string"/>
+    </model-command>
 
-        <model-command name="DeleteTask">
-            <model-parameter name="taskId" type="none"/>
-        </model-command>
+    <model-command name="DeleteTask">
+        <model-parameter name="taskId" type="none"/>
+    </model-command>
 
-        <model-command name="UpdateTask">
-            <model-parameter name="taskId" type="none"/>
-            <model-parameter name="taskText" type="string"/>
-        </model-command>
-    </ui-model>
+    <model-command name="UpdateTask">
+        <model-parameter name="taskId" type="none"/>
+        <model-parameter name="taskText" type="string"/>
+    </model-command>
 
     <ui-lookup name="StyleForTask">
         <ui-parameter name="task" type="Task"/>
@@ -63,7 +61,7 @@
         <ui-set what="$task.IsEditing" to="true"/>
         <ui-set what="$task.EditedText" to="$task.Text"/>
     </ui-action>
-    
+
     <ui-action name="finishEditing">
         <ui-parameter name="task" type="Task"/>
         <ui-set what="$task.IsEditing" to="false"/>
@@ -79,7 +77,25 @@
         <ui-set what="$task.EditedText" to=""/>
     </ui-action>
 
+    <ui-variable name="filter" value="none"/>
 
+    <ui-route name="home">              <!-- name is optional, only needed when referenced -->
+        <pattern route=""/>
+        <pattern route="#"/>
+        <ui-set what="$var.filter" to="none"/>
+    </ui-route>
+
+    <ui-route name="activeTasks">
+        <pattern route=""/>
+        <pattern route="#/active"/>
+        <ui-set what="$var.filter" to="activeTasks"/>
+    </ui-route>
+
+    <ui-route name="completedTasks">
+        <pattern route=""/>
+        <pattern route="#/completed"/>
+        <ui-set what="$var.filter" to="completedTasks"/>
+    </ui-route>
 
     <section class="todoapp">
         <header class="header">
@@ -105,9 +121,9 @@
         <footer class="footer">
             <span class="todo-count" from-model="Tasks.count"></span>
             <ul class="filters">
-                <li><a href="#">All</a></li>
-                <li><a href="#/active">Active</a></li>
-                <li><a href="#/completed">Completed</a></li>
+                <li><a ui-route="home">All</a></li>
+                <li><a ui-route="activeTasks">Active</a></li>
+                <li><a ui-route="completedTasks">Completed</a></li>
             </ul>
             <button on-click="command DeleteCompleted" class="clear-completed">Clear completed</button>
         </footer>
