@@ -56,6 +56,8 @@ declared in the UI and invoked from the UI only
 * single selection vs multiple selection
 * tag auto-completion client-side 
 * tag auto-completion server-side
+* paging
+* trigger commands via keyboard shortcuts, alternatively to buttons
 * split one view/page into multiple 
 * login/logout flow with protected views/pages
 * ?how to wrap existing datetimepicker?
