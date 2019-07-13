@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>TodoMVC</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="http://todomvc.com/examples/vanillajs/node_modules/todomvc-common/base.css" />
+    <link rel="stylesheet" type="text/css" href="http://todomvc.com/examples/vanillajs/node_modules/todomvc-app-css/index.css" />
+    <style>
+        [ui-template] {
+            display: none;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <model-type name= "Task">
+        <model-property name="Text" type="string">/>
+        <model-property name="IsCompleted" type="boolean"/>
+        <model-property name="Id" type="none"/>
+        <ui-property name="IsEditing" type="boolean"/>
+        <ui-property name="EditedText" type="string"/>
+    </model-type>
+    
+    <model-output name="Tasks" type="Task list" />
+
+    <model-command name="Complete">
+        <model-parameter name="taskId" type="none"/>
+    </model-command>
+
+    <model-command name="DeleteCompleted"/>
+
+    <model-command name="SetAll">
+        <model-paramer name="asCompleted" type="boolean"/>
+    </model-command>
+
+    <model-command name="AddTask">
+        <model-parameter name="taskText" type="string"/>
+    </model-command>
+
+    <model-command name="DeleteTask">
+        <model-parameter name="taskId" type="none"/>
+    </model-command>
+
+    <model-command name="UpdateTask">
+        <model-parameter name="taskId" type="none"/>
+        <model-parameter name="taskText" type="string"/>
+    </model-command>
+
+    <ui-lookup name="StyleForTask">
+        <ui-parameter name="task" type="Task"/>
+        <ui-map if="$task.IsEditing" add-value="editing"/>
+        <ui-map if="$task.IsCompleted" add-value="completed"/>
+    </ui-lookup>
+
+    <ui-variable name="filter" value="none"/>
+
+    <ui-filter name="AllTasks">
+        <ui-parameter name="task" type="Task"/>
+        
+    </ui-filter>
+
+    <ui-filter name="ActiveTasks">
+        <ui-parameter name="task" type="Task"/>
+        <ui-let-through if="not $task.IsCompleted"/>
+    </ui-filter>
+
+    <ui-filter name="CompletedTasks">
+        <ui-parameter name="task" type="Task"/>
+        <ui-let-through if="$task.IsCompleted"/>
+    </ui-filter>
+
+    <ui-route name="home">              
+        <pattern route=""/>
+        <pattern route="#"/>
+        <ui-set what="$var.filter" to="AllTasks"/>
+    </ui-route>
+
+    <ui-route name="activeTasks">
+        <pattern route=""/>
+        <pattern route="#/active"/>
+        <ui-set what="$var.filter" to="ActiveTasks"/>
+    </ui-route>
+
+    <ui-route name="completedTasks">
+        <pattern route=""/>
+        <pattern route="#/completed"/>
+        <ui-set what="$var.filter" to="CompletedTasks"/>
+    </ui-route>
+
+
+    <ui-behaviors for="NewTask">
+        <on-confirm>
+            <ui-call command="AddTask">
+                <ui-argument name="taskText" value="$value"/>
+            </ui-call>
+        </on-confirm>
+        <on-cancel>
+            <clear-value/>
+        </on-cancel>
+    </ui-behaviors>
+
+    <ui-behaviors for="AllCompletionToggle">
+        <on-change>
+            <ui-call command="SetAll">
+                <ui-argument name="SetAll" value="$value"/>
+            </ui-call>
+        </on-change>
+    </ui-behaviors>
+
+    <ui-behaviors for="SingleCompletionToggle">
+        <on-change>
+            <ui-call command="Complete">
+                <ui-argument name="taskId" value="$current.Id"/>
+            </ui-call>
+        </on-change>
+    </ui-behaviors>
+
+    <ui-behaviors for="TextDisplay">
+        <dont-use if="$current.IsEditing"/>
+        <on-doubleclick>
+            <ui-set what="$current.IsEditing" to="true"/>
+            <ui-set what="$current.EditedText" to="$current.Text"/>
+        </on-doubleclick>
+    </ui-behaviors>
+
+    <ui-behaviors for="TextEditor">
+        <do-use if="$current.IsEditing"/>
+        <on-blur>
+            <ui-set what="$current.IsEditing" to="false"/>
+            <ui-call command="UpdateTask">
+                <ui-argument name="taskId" value="$current.Id"/>
+                <ui-argument name="taskText" value="$current.EditedText"/>
+            </ui-call>
+        </on-blur>
+        <on-cancel>
+            <ui-set what="$current.IsEditing" to="false"/>
+            <ui-set what="$current.EditedText" to=""/>
+        </on-cancel>
+    </ui-behaviors>
+
+    <ui-behaviors for="Delete">
+        <on-click>
+            <ui-call command="DeleteTask">
+                <ui-argument name="taskId" value="$current.Id"/>
+            </ui-call>
+        </on-click>
+    </ui-behaviors>
+
+    <ui-behaviors for="DeleteCompleted">
+        <on-click>
+            <ui-call command="DeleteCompleted"/>
+        </on-click>
+    </ui-behaviors>
+
+    <section class="todoapp">
+        <header class="header">
+            <h1>todos</h1>
+            <input id= "NewTask" class="new-todo" placeholder="What needs to be done?" autofocus>
+        </header>
+        <section class="main">
+            <input id="AllCompletionToggle" class="toggle-all" type="checkbox">
+            <label for="AllCompletionToggle">Mark all as complete</label>
+            <ul class="todo-list" from-model="Tasks | $filter" element-ref="current">
+                <ui-template>
+                    <li dynamic-class="lookup StyleForTask $current">
+                        <div class="view">
+                            <input Id="SingleCompletionToggle" class="toggle" type="checkbox" from-model="$current.IsCompleted"/>
+                            <label id="TextDisplay" from-model="$current.Text"></label>
+                            <input id="TextEditor" from-model="$current.EditedText" class="edit" />
+                            <button id="Delete" class="destroy"></button>
+                        </div>
+                    </li>
+                </ui-template>
+            </ul>
+        </section>
+        <footer class="footer">
+            <span class="todo-count" from-model="Tasks.count"></span>
+            <ul class="filters">
+                <li><a ui-route="home">All</a></li>
+                <li><a ui-route="activeTasks">Active</a></li>
+                <li><a ui-route="completedTasks">Completed</a></li>
+            </ul>
+            <button id="DeleteCompleted" class="clear-completed">Clear completed</button>
+        </footer>
+    </section>
+    <footer class="info">
+        <p>Double-click to edit a todo</p>
+        <p>Part of <a href="http://todomvc.com">TodoMVC</a></p>
+    </footer>
+</body>
+</html>
