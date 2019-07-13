@@ -79,23 +79,40 @@
 
     <ui-variable name="filter" value="none"/>
 
-    <ui-route name="home">              <!-- name is optional, only needed when referenced -->
+    <ui-filter name="AllTasks">
+        <ui-parameter name="task" type="Task"/>
+        
+    </ui-filter>
+
+    <ui-filter name="ActiveTasks">
+        <ui-parameter name="task" type="Task"/>
+        <ui-let-through if="not $task.IsCompleted"/>
+    </ui-filter>
+
+    <ui-filter name="CompletedTasks">
+        <ui-parameter name="task" type="Task"/>
+        <ui-let-through if="$task.IsCompleted"/>
+    </ui-filter>
+
+    <ui-route name="home">              
         <pattern route=""/>
         <pattern route="#"/>
-        <ui-set what="$var.filter" to="none"/>
+        <ui-set what="$var.filter" to="AllTasks"/>
     </ui-route>
 
     <ui-route name="activeTasks">
         <pattern route=""/>
         <pattern route="#/active"/>
-        <ui-set what="$var.filter" to="activeTasks"/>
+        <ui-set what="$var.filter" to="ActiveTasks"/>
     </ui-route>
 
     <ui-route name="completedTasks">
         <pattern route=""/>
         <pattern route="#/completed"/>
-        <ui-set what="$var.filter" to="completedTasks"/>
+        <ui-set what="$var.filter" to="CompletedTasks"/>
     </ui-route>
+
+
 
     <section class="todoapp">
         <header class="header">
@@ -105,7 +122,7 @@
         <section class="main">
             <input class="toggle-all" type="checkbox" on-toggle="command SetAll $value">
             <label for="toggle-all">Mark all as complete</label>
-            <ul class="todo-list" from-model="Tasks" element-ref="current">
+            <ul class="todo-list" from-model="Tasks | $filter" element-ref="current">
                 <ui-template>
                     <li dynamic-class="lookup StyleForTask $current">
                         <div class="view">
